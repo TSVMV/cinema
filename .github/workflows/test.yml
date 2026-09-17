@@ -1,0 +1,45 @@
+name: test
+
+on:
+  push:
+    branches: [main, "ai/*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install native engine dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libclang-dev
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            target
+          key: ubuntu-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Core unit tests (no Python)
+        run: cargo test --no-default-features
+      - name: Install Python package
+        run: |
+          pip install maturin pytest pytest-cov
+          pip install -e .
+      - name: Python tests
+        run: pytest
+      - name: Coverage
+        run: |
+          pytest --cov=src/cinema --cov-report=term-missing --cov-fail-under=80

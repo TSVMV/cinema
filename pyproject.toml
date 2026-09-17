@@ -1,0 +1,83 @@
+[build-system]
+requires = ["maturin>=1.5,<2"]
+build-backend = "maturin"
+
+[project]
+name = "cinema-projector"
+version = "0.1.0"
+description = "Replay projector: record a binary's execution frame by frame and seek back to any frame."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "cinema contributors" }]
+keywords = ["tracing", "replay", "debugging", "elf", "unicorn"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Rust",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: System :: Emulators",
+]
+dependencies = [
+    "textual>=0.80,<2",
+    "typer>=0.12,<1",
+    "rich>=13,<15",
+]
+
+[project.optional-dependencies]
+dev = [
+    "maturin>=1.5,<2",
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[project.scripts]
+cinema = "cinema.cli:app"
+
+[project.urls]
+Repository = "https://github.com/TSVMV/cinema"
+
+[tool.maturin]
+manifest-path = "crates/cinema-core/Cargo.toml"
+python-source = "src"
+module-name = "cinema._core"
+features = ["python"]
+strip = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B008"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+exclude = ["build/", "dist/"]
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+# conftest is collected by pytest via rootdir path insertion, not a package.
+module = "conftest"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error"]

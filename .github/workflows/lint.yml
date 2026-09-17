@@ -1,0 +1,38 @@
+name: lint
+
+on:
+  push:
+    branches: [main, "ai/*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Install libclang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libclang-dev
+      - name: Install Python linters
+        run: |
+          pip install ruff mypy
+          pip install maturin
+          pip install -e .
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+      - name: clippy (warnings denied)
+        run: cargo clippy --all-targets --no-default-features -- -D warnings
+      - name: ruff
+        run: ruff check src tests
+      - name: mypy (strict)
+        run: mypy src tests

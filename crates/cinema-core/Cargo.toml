@@ -1,0 +1,26 @@
+[package]
+name = "cinema-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Core engine of the replay projector: instruction-level event capture, snapshots and arbitrary-frame replay backed by Unicorn Engine"
+readme = "README.md"
+
+[lib]
+name = "cinema_core"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = { workspace = true, optional = true }
+unicorn-engine = { workspace = true, features = ["arch_x86"] }
+goblin.workspace = true
+sha2.workspace = true
+winvpwn-core.workspace = true
+
+[features]
+default = ["python"]
+# Compiles the PyO3 bindings. maturin builds with this feature enabled;
+# `cargo test --no-default-features` runs the core logic without linking Python.
+# abi3-py311 produces a single stable-ABI wheel usable by CPython 3.11 and newer.
+python = ["dep:pyo3", "pyo3/extension-module", "pyo3/abi3-py311"]

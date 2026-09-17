@@ -1,0 +1,16 @@
+[workspace]
+members = ["crates/cinema-core"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT"
+
+[workspace.dependencies]
+pyo3 = "0.29"
+unicorn-engine = { version = "2.1", default-features = false }
+goblin = "0.10"
+sha2 = "0.10"
+winvpwn-core = { git = "https://github.com/TSVMV/winVpwn", tag = "v0.1.0", default-features = false }
