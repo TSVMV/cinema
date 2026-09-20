@@ -118,7 +118,15 @@ impl Memory {
             let take = (PAGE_SIZE - offset).min(len - out.len());
             let page = self.page(base);
             out.extend_from_slice(&page.0[offset..offset + take]);
-            cursor = base + PAGE_SIZE as u64;
+            match base.checked_add(PAGE_SIZE as u64) {
+                Some(next) => cursor = next,
+                None => {
+                    // Past the end of the 64-bit address space: the remaining
+                    // bytes are unmapped and read as zero.
+                    out.resize(len, 0);
+                    break;
+                }
+            }
         }
         out
     }
@@ -149,7 +157,10 @@ impl Memory {
                 .or_insert_with(|| self.base.get(&base).cloned().unwrap_or_else(Page::zero));
             entry.0[offset..offset + take].copy_from_slice(&data[written..written + take]);
             written += take;
-            cursor = base + PAGE_SIZE as u64;
+            match base.checked_add(PAGE_SIZE as u64) {
+                Some(next) => cursor = next,
+                None => break,
+            }
         }
     }
 

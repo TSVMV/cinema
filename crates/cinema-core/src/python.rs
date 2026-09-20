@@ -122,6 +122,8 @@ impl PyTrace {
 
     /// Read guest memory as seen at `frame`.
     fn read_memory(&self, frame: u64, addr: u64, len: usize) -> Vec<u8> {
+        const MAX_READ: usize = 64 * 1024 * 1024;
+        let len = len.min(MAX_READ);
         self.replay().state_at(Frame(frame)).mem.read(addr, len)
     }
 
