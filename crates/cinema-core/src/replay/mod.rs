@@ -84,9 +84,8 @@ impl<'a> Replay<'a> {
     /// The event at `frame - 1`, i.e. the event that produced the state at
     /// `frame`. Frame 0 has no producing event.
     pub fn event_at(&self, frame: Frame) -> Option<&Event> {
-        frame
-            .prev()
-            .map(|prev| &self.trace.events[prev.as_u64() as usize])
+        let idx = frame.prev()?.as_u64() as usize;
+        self.trace.events.get(idx)
     }
 }
 

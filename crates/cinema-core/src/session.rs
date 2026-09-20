@@ -434,8 +434,9 @@ fn compute_page_prots(elf: &LoadedElf) -> BTreeMap<u64, Prot> {
 }
 
 fn is_unmapped(msg: &str) -> bool {
-    msg.contains("READ_PROTECT")
-        || msg.contains("FETCH_PROTECT")
+    msg.contains("READ_PROT")
+        || msg.contains("FETCH_PROT")
+        || msg.contains("WRITE_PROT")
         || msg.contains("READ_UNMAPPED")
         || msg.contains("FETCH_UNMAPPED")
         || msg.contains("WRITE_UNMAPPED")
